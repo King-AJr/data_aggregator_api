@@ -1,18 +1,18 @@
 const router = require('express').Router();
-const getProduct = require('../controllers/e-commerceController.js');
-const getJob = require('../controllers/jobsController');
-const getListing = require('../controllers/realEstateController');
+const fetchData = require('../controllers/fetchDataController.js');
 
 
 router.post('/search', (req, res) => {
-    const { category } = req.body;
-    if (category === 'e-commerce') {
-        getProduct(req, res);
-    } else if (category === 'job') {
-        getJob(req, res);
+    const { category, name } = req.body;
+    if (category === 'e-commerce' || category === 'job' || category === 'real estate') {
+        if (name !== null && name !== '' && name !== undefined) {
+            fetchData(req, res);
+        } else {
+            res.status(404).json({message: 'name is required'})
+        }
     }
-    else if (category === 'real estate') {
-        getListing(req, res);
+    else {
+        res.status(404).json({message: 'Category can only be e-commerce, job or real estate'})
     }
 });
 module.exports = router;
