@@ -1,8 +1,8 @@
-const getProduct = require('../controllers/e-commerceController');
+const router = require('express').Router();
+const getProduct = require('../controllers/e-commerceController.js');
 const getJob = require('../controllers/jobsController');
 const getListing = require('../controllers/realEstateController');
 
-const router = require('express').Router();
 
 router.post('/search', (req, res) => {
     const { category } = req.body;
@@ -15,3 +15,4 @@ router.post('/search', (req, res) => {
         getListing(req, res);
     }
 });
+module.exports = router;

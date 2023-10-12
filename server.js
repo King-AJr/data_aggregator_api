@@ -6,7 +6,7 @@ const index = require('./routes/index');
 
 const PORT = process.env.PORT || 8080;
 
-app.use(bp);
+app.use(bp.json());
 
 app.use('', index);
 

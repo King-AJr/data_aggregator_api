@@ -1,40 +1,77 @@
-import { createClient } from 'redis';
+import redis from 'redis';
 import { promisify } from 'util';
 
+/**
+ * Class for performing operations with Redis service
+ */
 class RedisClient {
   constructor() {
-    this.client = createClient();
-    this.client.on('error', (err) => {
-      console.log(`[Redis]: Connection error: ${err}`);
+    this.client = redis.createClient();
+    this.getAsync = promisify(this.client.get).bind(this.client);
+
+    this.client.on('error', (error) => {
+      console.log(`Redis client not connected to the server: ${error.message}`);
+    });
+
+    this.client.on('connect', () => {
+      console.log('Redis client connected to the server');
     });
   }
 
+  /**
+   * Checks if connection to Redis is Alive
+   * @return {boolean} true if connection alive or false if not
+   */
   isAlive() {
-    if (this.client.connected) {
-      return true;
-    }
-    return false;
+    return this.client.connected;
   }
 
+  /**
+   * gets value corresponding to key in redis
+   * @key {string} key to search for in redis
+   * @return {string}  value of key
+   */
   async get(key) {
-    const getData = await promisify(this.client.get).bind(this.client);
-    const value = await getData(key);
+    const value = await this.getAsync(key);
     return value;
   }
 
+
+  /**
+   * Creates a new key in redis with a specific TTL
+   * @key {string} key to be saved in redis
+   * @value {string} value to be asigned to key
+   * @duration {number} TTL of key
+   * @return {undefined}  No return
+   */
   async set(key, value, duration) {
-    const setData = await promisify(this.client.set).bind(this.client);
-    await setData(key, value);
-    await this.client.expire(key, duration);
+    this.client.setex(key, duration, JSON.stringify(value));
   }
 
+  /**
+   * Deletes key in redis service
+   * @key {string} key to be deleted
+   * @return {undefined}  No return
+   */
   async del(key) {
-    const delData = await promisify(this.client.del).bind(this.client);
-    const value = await delData(key);
-    return value;
+    this.client.del(key);
+  }
+
+  /**
+   * Flusehs entire cache
+   * @return {undefined} No return
+   */
+  async flush() {
+    this.client.flushall((err, reply) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log(`Cleared the entire Redis cache`);
+        }
+    });
   }
 }
 
 const redisClient = new RedisClient();
 
-module.exports = redisClient;
+export default redisClient;
