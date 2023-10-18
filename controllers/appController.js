@@ -9,13 +9,13 @@ class AppController {
     res.status(200).send(status);
   }
 
-  // static async getStats(req, res) {
-  //   const stats = {
-  //     users: await redisClient.get("users"),
-  //     files: await redisClient.get("files"),
-  //   };
-  //   res.status(200).send(stats);
-  // }
+  static async getStats(req, res) {
+    const stats = {
+      product: await redisClient.get('ecommerce:Smartphone'),
+      no_cache: await redisClient.size(),
+    };
+    res.status(200).send(stats);
+  }
 }
 
 export default AppController;

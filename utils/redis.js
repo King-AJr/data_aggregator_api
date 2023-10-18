@@ -30,6 +30,30 @@ class RedisClient {
   async del(key) {
     this.client.del(key);
   }
+
+  async clear() {
+    this.client.flushall('ASYNC', (err, succeeded) => {
+      if (err) {
+        console.error('Error clearing cache:', err);
+      } else {
+        console.log('Cache cleared:', succeeded);
+      }
+      // Close the Redis connection
+      this.client.quit();
+    });
+  }
+
+  async size() {
+    this.client.dbsize((err, numberOfKeys) => {
+      if (err) {
+        console.error('Error getting number of keys:', err);
+      } else {
+        console.log('Total number of keys in Redis:', numberOfKeys);
+      }
+      // Close the Redis connection
+      this.client.quit();
+    });
+  }
 }
 
 const redisClient = new RedisClient();
