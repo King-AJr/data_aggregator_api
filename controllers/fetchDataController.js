@@ -1,6 +1,7 @@
 
 import redisClient from '../utils/redis'; // Import the Redis client utility
 import mock_data from '../mock_responses/mockData'; // Import mock eCommerce data
+import getJob from './apiInteractionControllers/jobs';
 
 
 /**
@@ -13,16 +14,22 @@ import mock_data from '../mock_responses/mockData'; // Import mock eCommerce dat
 const fetchData = async (req, res) => {
   const { name, category } = req.body; // Extract the 'name' field from the request body
   const key = `${category}:${name}`; // Create a key for Redis using the 'name' value
+  let response;
 
   try {
-    const result = await redisClient.get(key); // Try to retrieve data from the Redis cache
 
+    const result = await redisClient.get(key); 
+    
     if (result !== null) {
       // Cache hit: return response from cache
       res.status(200).json(JSON.parse(result)); // Respond with the cached data
     } else {
-      const response = mock_data.filter((item) => `${category}:${item.name}` === key);
-      // Filter the mock eCommerce data to find a matching item
+      if (category === 'job') {
+        response = await getJob(name);
+      } else {
+        response = mock_data.filter((item) => `${category}:${item.name}` === key);
+        // Filter the mock eCommerce data to find a matching item
+      }
 
       if (response.length > 0) {
         // Store response in cache if a matching item is found
