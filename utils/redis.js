@@ -45,6 +45,7 @@ class RedisClient {
    * @return {undefined}  No return
    */
   async set(key, value, duration) {
+    console.log(value);
     this.client.setex(key, duration, JSON.stringify(value));
   }
 

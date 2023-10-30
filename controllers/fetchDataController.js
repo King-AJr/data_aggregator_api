@@ -2,7 +2,7 @@
 import redisClient from '../utils/redis'; // Import the Redis client utility
 import mock_data from '../mock_responses/mockData'; // Import mock eCommerce data
 import getJob from './apiInteractionControllers/jobs';
-
+import getListings from './apiInteractionControllers/realEstate';
 
 /**
  * fetch information from Redis cache or mock responses
@@ -12,8 +12,14 @@ import getJob from './apiInteractionControllers/jobs';
  */
 
 const fetchData = async (req, res) => {
-  const { name, category } = req.body; // Extract the 'name' field from the request body
-  const key = `${category}:${name}`; // Create a key for Redis using the 'name' value
+  const { name, category, city } = req.body;
+  let key; // Extract the 'name' field from the request body
+  if (category === 'realEstate'){
+    const {type, postalCode} = req.body;
+    key = `${category}:${type}:${postalCode}:${city}`
+  } else {
+    key = `${category}:${name}`; // Create a key for Redis using the 'name' value
+  }
   let response;
 
   try {
@@ -22,18 +28,23 @@ const fetchData = async (req, res) => {
     
     if (result !== null) {
       // Cache hit: return response from cache
+      console.log('cache hit')
       res.status(200).json(JSON.parse(result)); // Respond with the cached data
     } else {
       if (category === 'job') {
         response = await getJob(name);
-      } else {
+      } else if (category === "realEstate") {
+        const {type, postalCode} = req.body;
+        response = await getListings(type, postalCode, city)
+      } 
+      else {
         response = mock_data.filter((item) => `${category}:${item.name}` === key);
         // Filter the mock eCommerce data to find a matching item
       }
 
-      if (response.length > 0) {
+      if (response.length > 0 && typeof(response) !== 'string') {
         // Store response in cache if a matching item is found
-        const cacheData = await redisClient.set(`${key}`, response, 24 * 60 * 60); // Cache the response in Redis
+        const cacheData = await redisClient.set(`${key}`, response, 48 * 60 * 60); // Cache the response in Redis
         res.status(200).json(response); // Respond with the retrieved data
       } else {
         // No matching data found
