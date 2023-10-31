@@ -35,14 +35,14 @@ app.use('/api/v1/data', dataRouter);
 app.use('/api/v1/auth', authRouter)
 
 
-app.use((error, req, res, next) => {
-    const errorStatus = error.statusCode || 500;
-    const errorMessage = error.message || 'Internal server error';
-    res.status(errorStatus).json({
+app.use((err, req, res, next) => {
+    const errorStatus = err.statusCode || 500;
+    const errorMessage = err.message || 'Internal server error';
+    res.status(errorStatus).send({
         success: false,
         status: errorStatus,
         error: errorMessage,
-        stack: error.stack
+        stack: err.stack
     });
 }
 )
