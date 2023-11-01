@@ -2,8 +2,9 @@ const User = require('../models/usersModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const errorResponse = require('../utils/errorResponse');
-const sendEmail = require('../utils/email');
+const sendApiKey = require('./emailSender');
 const crypto = require('crypto');
+const {v4: uuidv4} = require('uuid')
 
 exports.register = async (req, res, next) => {
     try {
@@ -16,16 +17,26 @@ exports.register = async (req, res, next) => {
         if(checkUser) {
             return next(new errorResponse('User already exists', 400));
         }
-
+        const api_key = uuidv4();
         const user = await User.create({
             name,
             email,
-            password: hashedPassword
-        }); 
-        res.status(201).json({
-            success: true,
-            user: user
-        })
+            password: hashedPassword,
+            api_key
+        });
+        try {
+            const userDetails = User.findOne({ email });
+            if (user) {
+               sendApiKey(user, res)
+            } else {
+                res.status(500).json({
+                    status: 'failed',
+                    message: 'account creation not successful'
+                });
+            }
+        } catch (e) {
+            //log error
+        }
     } catch (error) {
         next(error);
     }
