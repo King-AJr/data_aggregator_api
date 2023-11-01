@@ -11,14 +11,9 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, 'email is required']
         },
-        password: {
+        api_key: {
             type: String,
-            required: [true, 'password is required']
-        },
-        role: {
-            type: String,
-            enum: ['admin', 'user'],
-            default: 'user'
+            required: [true, 'every user must have an api key']
         },
         passwordChangedAt: Date,
         passwordResetToken: String,

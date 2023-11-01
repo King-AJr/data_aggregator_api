@@ -87,9 +87,8 @@ The workflow of this API involves the following steps:
 
 1. Receive a search request from the client with category, name, and optional filter options.
 2. Retrieve data from various sources, including external APIs and web scraping.
-3. Store the data in a database for persistence and caching.
-4. Apply filters to the data based on user criteria.
-5. Return the filtered data to the client as a response.
+3. Store the data in a cache for persistence and caching.
+
 
 ## Testing
 

@@ -31,8 +31,8 @@ app.use(bp.json());
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/v1/data', dataRouter);
-app.use('/api/v1/auth', authRouter)
+app.use('', dataRouter);
+app.use('', authRouter);
 
 
 app.use((err, req, res, next) => {

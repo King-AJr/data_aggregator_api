@@ -6,8 +6,8 @@ require('dotenv').config();
     let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-            user: 'talk2ajur@gmail.com',
-            pass: 'ddtdttkxmiuhkraw'
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD
         }
     })
     
@@ -20,8 +20,9 @@ require('dotenv').config();
     })
 
 
-const sendApiKey = (userInfo, res) => {
-    const {_id, email, api_key} = userInfo;
+const sendApiKey = async(userInfo, res) => {
+    const {email, api_key} = userInfo;
+    console.log("in sendapikey", email, api_key)
 
     const mailOptions = {
         from: "Data Aggregator API",
@@ -31,13 +32,12 @@ const sendApiKey = (userInfo, res) => {
                 <p>Here is your API key <b>${api_key}</b>.</p>`         
     }
     try{
-        transporter
+        await transporter
         .sendMail(mailOptions)
         .then(() => {
             return res.json({
                 status: "success",
-                message: 'API key sent via email',
-                userInfo
+                message: 'API key sent via email'
              })
         })
         .catch((error) => {
@@ -61,4 +61,4 @@ const sendApiKey = (userInfo, res) => {
 
 
 
-module.exports = {sendApiKey};
+module.exports = sendApiKey;

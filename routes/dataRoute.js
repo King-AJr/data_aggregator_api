@@ -1,7 +1,7 @@
-const router = require('express').Router();
+const dataRoute = require('express').Router();
 const fetchData = require('../controllers/fetchDataController.js');
 
-router.post('/search', (req, res) => {
+dataRoute.post('/search', (req, res) => {
     const { category, name } = req.body;
     if (category === 'e-commerce' || category === 'job') {
         if (name !== null && name !== '' && name !== undefined) {
@@ -22,4 +22,4 @@ router.post('/search', (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = dataRoute;

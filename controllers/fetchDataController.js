@@ -12,6 +12,7 @@ import getListings from './apiInteractionControllers/realEstate';
  */
 
 const fetchData = async (req, res) => {
+  //call authorization header checker
   try {
     const { name, category, city } = req.body;
     let key;
@@ -43,7 +44,6 @@ const fetchData = async (req, res) => {
 
     if (response && response.length > 0 && typeof response !== 'string') {
       const cacheData = await redisClient.set(key, JSON.stringify(response), 48 * 60 * 60);
-      console.log(cacheData);
       return res.status(200).json(response);
     } else {
       return res.status(404).json({ error: 'No matching data found' });

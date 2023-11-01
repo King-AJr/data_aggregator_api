@@ -42,10 +42,20 @@ const getListings = async(type, postalCode, city) => {
             return response;
         }
         
-    } catch (e) {
-        const response = `I don't have information on that`;
-        return response;
-    }
+    } catch (error) {
+      // Handle errors here
+      if (error.response) {
+          // Server responded with a status code outside the range of 2xx
+          console.error('Error response from server:', error.response.status, error.response.data);
+      } else if (error.request) {
+          // The request was made but no response was received (e.g., no internet connection)
+          console.error('No response received. Is your computer connected to the internet?');
+      } else {
+          // An error occurred during the request setup (e.g., invalid request config)
+          console.error('Error:', error.message);
+      }
+      throw error; // Rethrow the error to propagate it to the caller if needed
+  }
 }
 
 
