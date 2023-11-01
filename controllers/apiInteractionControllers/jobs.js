@@ -3,8 +3,8 @@
 //&what=Data analyst&salary_min=45000&content-type=application/json
 const axios = require('axios');
 
+
 const getJob = async (title) => {
-    // Use Promise.all to send both requests concurrently
     const [first_response, second_response] = await Promise.all([
         axios.get(`https://findwork.dev/api/jobs/?search=${title}&sort_by=relevance`, {
             headers: {'Authorization': 'Token 8662a2608699f6225b83dc1befc5276009ab5f8d'}
