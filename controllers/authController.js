@@ -7,7 +7,7 @@ exports.register = async (req, res, next) => {
     try {
         const { name, email } = req.body;
         if(!name || !email) {
-            return next(new errorResponse('Please provide an email, name and password', 400));
+            return next(new errorResponse('Please provide an email and name', 400));
         }
         const checkUser = await User.findOne({ email });
         if(checkUser.email === email || checkUser.name === name || !checkUser) {
@@ -23,7 +23,6 @@ exports.register = async (req, res, next) => {
         user.save();
 
         if (checkUser) {
-            console.log('in userdetails fx')
             sendApiKey(user, res)
         } else {
             res.status(500).json({

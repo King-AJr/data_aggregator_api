@@ -12,7 +12,7 @@ import getListings from './apiInteractionControllers/realEstate';
  */
 
 const fetchData = async (req, res) => {
-  //call authorization header checker
+  redisClient.flush();
   try {
     const { name, category, city } = req.body;
     let key;
