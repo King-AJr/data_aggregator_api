@@ -1,7 +1,8 @@
 const dataRoute = require('express').Router();
 const fetchData = require('../controllers/fetchDataController.js');
+const { verifyAPIKey } = require('../middleware/verifyAPIKey.js');
 
-dataRoute.post('/search', (req, res) => {
+dataRoute.post('/search', verifyAPIKey, (req, res) => {
     const { category, name } = req.body;
     if (category === 'e-commerce' || category === 'job') {
         if (name !== null && name !== '' && name !== undefined) {
