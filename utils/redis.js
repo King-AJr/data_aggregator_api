@@ -1,5 +1,5 @@
-import redis from 'redis';
 import { promisify } from 'util';
+const redis = require('redis');
 
 /**
  * Class for performing operations with Redis service
@@ -45,6 +45,7 @@ class RedisClient {
    * @return {undefined}  No return
    */
   async set(key, value, duration) {
+    console.log(value);
     this.client.setex(key, duration, JSON.stringify(value));
   }
 

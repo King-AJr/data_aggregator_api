@@ -1,7 +1,8 @@
 
 import redisClient from '../utils/redis'; // Import the Redis client utility
 import mock_data from '../mock_responses/mockData'; // Import mock eCommerce data
-
+import getJob from './apiInteractionControllers/jobs';
+import getListings from './apiInteractionControllers/realEstate';
 
 /**
  * fetch information from Redis cache or mock responses
@@ -11,31 +12,45 @@ import mock_data from '../mock_responses/mockData'; // Import mock eCommerce dat
  */
 
 const fetchData = async (req, res) => {
-  const { name, category } = req.body; // Extract the 'name' field from the request body
-  const key = `${category}:${name}`; // Create a key for Redis using the 'name' value
-
+  redisClient.flush();
   try {
-    const result = await redisClient.get(key); // Try to retrieve data from the Redis cache
+    const { name, category, city } = req.body;
+    let key;
+
+    if (category === 'realEstate') {
+      const { type, postalCode } = req.body;
+      key = `${category}:${type}:${postalCode}:${city}`;
+    } else {
+      key = `${category}:${name}`;
+    }
+
+    const result = await redisClient.get(key);
 
     if (result !== null) {
-      // Cache hit: return response from cache
-      res.status(200).json(JSON.parse(result)); // Respond with the cached data
-    } else {
-      const response = mock_data.filter((item) => `${category}:${item.name}` === key);
-      // Filter the mock eCommerce data to find a matching item
-
-      if (response.length > 0) {
-        // Store response in cache if a matching item is found
-        const cacheData = await redisClient.set(`${key}`, response, 24 * 60 * 60); // Cache the response in Redis
-        res.status(200).json(response); // Respond with the retrieved data
-      } else {
-        // No matching data found
-        res.status(404).json({ error: 'No matching data found' }); // Respond with a 404 status and an error message
-      }
+      console.log('Cache hit');
+      return res.status(200).json(result);
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+
+    let response;
+
+    if (category === 'job') {
+      response = await getJob(name);
+    } else if (category === 'realEstate') {
+      const { type, postalCode } = req.body;
+      response = await getListings(type, postalCode, city);
+    } else {
+      response = mock_data.find((item) => `${category}:${item.name}` === key);
+    }
+
+    if (response && response.length > 0 && typeof response !== 'string') {
+      const cacheData = await redisClient.set(key, JSON.stringify(response), 48 * 60 * 60);
+      return res.status(200).json(response);
+    } else {
+      return res.status(404).json({ error: 'No matching data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'An error occurred' });
   }
 };
 
