@@ -10,7 +10,7 @@ exports.register = async (req, res, next) => {
             return next(new errorResponse('Please provide an email and name', 400));
         }
         const checkUser = await User.findOne({ email });
-        if(checkUser.email === email || checkUser.name === name || !checkUser) {
+        if(checkUser) {
             return next(new errorResponse('User already exists', 400));
         }
 
@@ -21,8 +21,8 @@ exports.register = async (req, res, next) => {
             api_key
         });
         user.save();
-
-        if (checkUser) {
+        console.log(user)
+        if (user) {
             sendApiKey(user, res)
         } else {
             res.status(500).json({
@@ -30,17 +30,10 @@ exports.register = async (req, res, next) => {
                 message: 'account creation not successful'
             });
         }
-        res.status(200).json({
-            status: 'success',
-            user,
-            message: 'account created successfully'
-        });
+
 
     } catch (error) {
         // nothing should be stored in the database if an error occurs
-        userDetails.name = undefined;
-        userDetails.email = undefined;
-        userDetails.api_key = undefined;
         next(error);
     }
 }
