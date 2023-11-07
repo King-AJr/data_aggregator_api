@@ -3,12 +3,12 @@ const bp = require('body-parser');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const authRouter = require('./routes/authRoute');
-const dataRouter = require('./routes/dataRoute');
+const authRoute = require('./routes/authRoute');
+const dataRoute = require('./routes/dataRoute');
 
 const app = express();
 dotenv.config();
-
+app.use(bp.json());
 // env variables
 const db = process.env.DATABASE.replace(
     '<password>',
@@ -27,8 +27,8 @@ mongoose.connect(db, {
 const PORT = process.env.PORT || 8080;
 
 // middlewares
-app.use(bp.json());
-app.use('', authRouter);
+
+app.use('', authRoute);
 const rateLimit = require('express-rate-limit');
 
 const limiter = rateLimit({
@@ -37,7 +37,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use('', dataRouter);
+app.use('', dataRoute);
 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
